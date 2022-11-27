@@ -1,0 +1,113 @@
+import java.util.*;
+
+public class AVLTree {
+	private AVLNode root;
+
+	private class AVLNode {
+		private String data;
+
+		public String getData() {
+			return data;
+		}
+
+		public void setData(int data) {
+			this.data = data;
+		}
+
+		public AVLNode getLeft() {
+			return left;
+		}
+
+		public void setLeft(AVLNode left) {
+			this.left = left;
+		}
+
+		public AVLNode getRight() {
+			return right;
+		}
+
+		public void setRight(AVLNode right) {
+			this.right = right;
+		}
+
+		private AVLNode left;
+		private AVLNode right;
+
+		public AVLNode(String data) {
+			this.data = data;
+			this.left = null;
+			this.right = null;
+		}
+	}
+
+	public AVLTree() {
+		root = null;
+	}
+
+	public void insert(String word) {
+		root = insert(word, root);
+	}
+
+	private AVLNode insert(String word, AVLNode node) {
+		if (node == null) {
+			node = new AVLNode(word);
+		} else if (word.compareTo(node.getWord()) < 0) {
+			node.setLeft(insert(word, node.getLeft()));
+			if (height(node.getLeft()) - height(node.getRight()) == 2) {
+				if (word.compareTo(node.getLeft().getWord()) < 0) {
+					node = rotateWithLeftChild(node);
+				} else {
+					node = doubleWithLeftChild(node);
+				}
+			}
+		} else if (word.compareTo(node.getWord()) > 0) {
+			node.setRight(insert(word, node.getRight()));
+			if (height(node.getRight()) - height(node.getLeft()) == 2) {
+				if (word.compareTo(node.getRight().getWord()) > 0) {
+					node = rotateWithRightChild(node);
+				} else {
+					node = doubleWithRightChild(node);
+				}
+			}
+		} else {
+			node.setCount(node.getCount() + 1);
+		}
+		node.setHeight(Math.max(height(node.getLeft()), height(node.getRight())) + 1);
+		return node;
+	}
+
+	private AVLNode rotateWithLeftChild(AVLNode k2) {
+		AVLNode k1 = k2.getLeft();
+		k2.setLeft(k1.getRight());
+		k1.setRight(k2);
+		k2.setHeight(Math.max(height(k2.getLeft()), height(k2.getRight())) + 1);
+		k1.setHeight(Math.max(height(k1.getLeft()), k2.getHeight()) + 1);
+		return k1;
+	}
+
+	private AVLNode rotateWithRightChild(AVLNode k1) {
+		AVLNode k2 = k1.getRight();
+		k1.setRight(k2.getLeft());
+		k2.setLeft(k1);
+		k1.setHeight(Math.max(height(k1.getLeft()), height(k1.getRight())) + 1);
+		k2.setHeight(Math.max(height(k2.getRight()), k1.getHeight()) + 1);
+		return k2;
+	}
+
+	private AVLNode doubleWithLeftChild(AVLNode k3) {
+		k3.setLeft(rotateWithRightChild(k3.getLeft()));
+		return rotateWithLeftChild(k3);
+	}
+
+	private AVLNode doubleWithRightChild(AVLNode k1) {
+		k1.setRight(rotateWithLeftChild(k1.getRight()));
+		return rotateWithRightChild(k1);
+	}
+
+	public int height(AVLNode root) {
+		if (root == null) {
+			return 0;
+		}
+		return 1 + Math.max(height(root.left), height(root.right));
+	}
+}
